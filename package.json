@@ -1,6 +1,6 @@
 {
   "name": "rx-socket",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Rx Subject for Node sockets",
   "main": "lib/index.js",
   "repository": "git@github.com:MainframeHQ/rx-socket.git",
