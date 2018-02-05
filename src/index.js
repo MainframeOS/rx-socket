@@ -13,7 +13,7 @@ type constructorOptions = net$connectOptions & {
   closeObserver?: Observer<boolean>,
 }
 
-type connectArg = number | string | net$connectOptions
+type connectArg = number | string | constructorOptions
 
 export class SocketSubject<T> extends AnonymousSubject<T> {
   socket: ?Socket
@@ -23,7 +23,7 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
   _connectArg: connectArg
   _output: Subject<T>
 
-  constructor(connectArg: constructorOptions, destination?: Observer<T>) {
+  constructor(connectArg: connectArg, destination?: Observer<T>) {
     super()
 
     if (typeof connectArg === 'object') {

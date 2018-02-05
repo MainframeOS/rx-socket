@@ -28,8 +28,8 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "del-cli": "^1.1.0",
-    "flow-bin": "^0.60.1",
-    "flow-copy-source": "^1.2.1",
-    "rxjs": "^5.5.5"
+    "flow-bin": "^0.64.0",
+    "flow-copy-source": "^1.2.2",
+    "rxjs": "^5.5.6"
   }
 }
