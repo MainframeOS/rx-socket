@@ -16,9 +16,13 @@ import { SocketSubject } from 'rx-socket'
 
 const socket = new SocketSubject('/path/to/socket')
 
-socket.subscribe(console.log)
+socket.subscribe(data => {
+  // `data` will be an Object, expecting a JSON-encoded string to be provided
+  console.log(data)
+})
 
-socket.next('Hello world')
+// `next()` expects a string by default
+socket.next(JSON.stringify({ hello: 'world' }))
 ```
 
 See the

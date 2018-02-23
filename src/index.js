@@ -1,6 +1,7 @@
 // @flow
 
 import { createConnection, type Socket } from 'net'
+import { EOL } from 'os'
 import { Observable } from 'rxjs/Observable'
 import { type Observer } from 'rxjs/Observer'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
@@ -38,6 +39,10 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
     this._output = new Subject()
     // $FlowFixMe
     this.destination = new ReplaySubject()
+  }
+
+  resultSelector(data: string): T {
+    return JSON.parse(data)
   }
 
   _reset() {
@@ -94,8 +99,21 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
       }
     })
 
+    const tryPush = str => {
+      try {
+        const result = this.resultSelector(str)
+        observer.next(result)
+      } catch (err) {
+        observer.error(err)
+      }
+    }
+
     socket.on('data', data => {
-      observer.next(data.toString())
+      data
+        .toString()
+        .split(EOL)
+        .filter(Boolean)
+        .forEach(tryPush)
     })
   }
 
