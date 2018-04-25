@@ -2,77 +2,89 @@
 
 import { createConnection, type Socket } from 'net'
 import { EOL } from 'os'
-import { Observable } from 'rxjs/Observable'
-import { type Observer } from 'rxjs/Observer'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import { Subject, AnonymousSubject } from 'rxjs/Subject'
-import { Subscriber } from 'rxjs/Subscriber'
-import { Subscription } from 'rxjs/Subscription'
+import {
+  Observable,
+  type Observer,
+  ReplaySubject,
+  Subject,
+  Subscriber,
+  Subscription,
+} from 'rxjs'
+import { AnonymousSubject } from 'rxjs/internal/Subject'
 
-type constructorOptions = net$connectOptions & {
-  openObserver?: Observer<void>,
-  closeObserver?: Observer<boolean>,
+type OpenObserver = Observer<void>
+type CloseObserver = Observer<boolean>
+
+type ConnectArg = number | string | net$connectOptions
+
+export type Config<T> = {
+  connect: ConnectArg,
+  deserializer: (value: string) => T,
+  serializer: (value: any) => string,
+  openObserver?: ?OpenObserver,
+  closeObserver?: ?CloseObserver,
 }
 
-type connectArg = number | string | constructorOptions
+const DEFAULT_CONFIG = {
+  deserializer: (value: string) => JSON.parse(value),
+  serializer: (value: any) => JSON.stringify(value),
+}
 
 export class SocketSubject<T> extends AnonymousSubject<T> {
-  socket: ?Socket
-  openObserver: ?Observer<void>
-  closeObserver: ?Observer<boolean>
-
-  _connectArg: connectArg
+  _config: Config<T>
   _output: Subject<T>
+  _socket: ?Socket
 
-  constructor(connectArg: connectArg, destination?: Observer<T>) {
+  constructor(
+    connectOrConfig: ConnectArg | Config<T>,
+    destination?: Observer<T>,
+  ) {
     super()
 
-    if (typeof connectArg === 'object') {
-      const { openObserver, closeObserver, ...arg } = connectArg
-      this.openObserver = openObserver
-      this.closeObserver = closeObserver
-      this._connectArg = arg
-    } else {
-      this._connectArg = connectArg
-    }
+    const config =
+      typeof connectOrConfig === 'number' ||
+      typeof connectOrConfig === 'string' ||
+      connectOrConfig.connect == null
+        ? { connect: connectOrConfig }
+        : connectOrConfig
 
+    // $FlowFixMe: config type
+    this._config = Object.assign({}, DEFAULT_CONFIG, config)
     this._output = new Subject()
-    // $FlowFixMe
     this.destination = new ReplaySubject()
   }
 
-  resultSelector(data: string): T {
-    return JSON.parse(data)
-  }
-
   _reset() {
-    this.socket = null
+    this._socket = null
     this._output = new Subject()
   }
 
   _connectSocket() {
+    const {
+      connect,
+      deserializer,
+      serializer,
+      openObserver,
+      closeObserver,
+    } = this._config
     const observer = this._output
 
-    const socket = createConnection(this._connectArg)
-    this.socket = socket
+    const socket = createConnection(connect)
+    this._socket = socket
 
-    // $FlowFixMe
     const subscription = new Subscription(() => {
       socket.end()
-      this.socket = null
+      this._socket = null
     })
 
     socket.on('connect', () => {
-      if (this.openObserver) {
-        this.openObserver.next()
-      }
+      openObserver && openObserver.next()
 
       const queue = this.destination
 
-      // $FlowFixMe
       this.destination = Subscriber.create(
         x => {
-          socket.write(x)
+          socket.write(serializer(x))
         },
         e => {
           observer.error(e)
@@ -91,7 +103,7 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
 
     socket.on('close', (had_error: boolean) => {
       this._reset()
-      this.closeObserver && this.closeObserver.next(had_error)
+      closeObserver && closeObserver.next(had_error)
       if (had_error) {
         observer.error(new Error('Connection closed'))
       } else {
@@ -99,10 +111,9 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
       }
     })
 
-    const tryPush = str => {
+    const tryPush = value => {
       try {
-        const result = this.resultSelector(str)
-        observer.next(result)
+        observer.next(deserializer(value))
       } catch (err) {
         observer.error(err)
       }
@@ -118,7 +129,7 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
   }
 
   _subscribe(subscriber: Subscriber<T>): Subscription {
-    if (!this.socket) {
+    if (!this._socket) {
       this._connectSocket()
     }
 
@@ -126,9 +137,7 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
     subscription.add(this._output.subscribe(subscriber))
     subscription.add(() => {
       if (this._output.observers.length === 0) {
-        if (this.socket) {
-          this.socket.end()
-        }
+        this._socket && this._socket.end()
         this._reset()
       }
     })
@@ -136,8 +145,8 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
   }
 
   unsubscribe() {
-    if (this.socket) {
-      this.socket.end()
+    if (this._socket) {
+      this._socket.end()
       this._reset()
     }
     super.unsubscribe()

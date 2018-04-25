@@ -1,7 +1,7 @@
 # rx-socket
 
 [RxJS Subject](http://reactivex.io/rxjs/class/es6/Subject.js~Subject.html) for
-[Node Socket](https://nodejs.org/dist/latest-v9.x/docs/api/net.html#net_class_net_socket).
+[Node Socket](https://nodejs.org/dist/latest-v10.x/docs/api/net.html#net_class_net_socket).
 
 ## Installation
 
@@ -21,8 +21,8 @@ socket.subscribe(data => {
   console.log(data)
 })
 
-// `next()` expects a string by default
-socket.next(JSON.stringify({ hello: 'world' }))
+// `next()` will encode the provided value to JSON
+socket.next({ hello: 'world' })
 ```
 
 See the
