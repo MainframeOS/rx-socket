@@ -58,7 +58,9 @@ test('sends JSON objects', t => {
 test('accepts a config object with open and close observers', t => {
   t.plan(2)
   return new Promise(async resolve => {
-    const server = await createSocketServer()
+    const server = await createSocketServer(s => {
+      s.write('"test"')
+    })
     const socket = new SocketSubject({
       connect: server.path,
       openObserver: {
@@ -73,7 +75,9 @@ test('accepts a config object with open and close observers', t => {
         },
       },
     })
-    socket.subscribe()
-    server.close()
+    socket.subscribe(() => {
+      socket.unsubscribe()
+      server.close()
+    })
   })
 })
