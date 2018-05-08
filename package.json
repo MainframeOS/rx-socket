@@ -5,7 +5,9 @@
   "repository": "git@github.com:MainframeHQ/rx-socket.git",
   "author": "Mainframe",
   "license": "MIT",
-  "files": ["lib/*"],
+  "files": [
+    "lib/*"
+  ],
   "main": "index.js",
   "module": "lib/index.js",
   "scripts": {
@@ -13,21 +15,43 @@
     "build:js": "flow-remove-types src --out-dir lib",
     "build:flow": "flow-copy-source src lib",
     "build": "yarn clean && yarn build:js && yarn build:flow",
-    "test": "flow check",
-    "start": "yarn test && yarn build",
+    "lint": "eslint src",
+    "lint:fix": "yarn lint --fix",
+    "typecheck": "flow check",
+    "test:only": "ava",
+    "test:cover": "nyc ava",
+    "test:coverage": "nyc report --reporter=lcov",
+    "test": "yarn lint && yarn typecheck && yarn test:cover",
+    "start": "yarn test && yarn build && yarn test:cover",
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "esm": "^3.0.26"
+    "esm": "^3.0.31"
   },
   "peerDependencies": {
     "rxjs": "^6.0.0"
   },
   "devDependencies": {
+    "ava": "^0.25.0",
+    "babel-eslint": "^8.2.3",
     "del-cli": "^1.1.0",
-    "flow-bin": "^0.70.0",
+    "eslint": "^4.19.1",
+    "eslint-config-mainframe": "^1.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-ava": "^4.5.1",
+    "eslint-plugin-flowtype": "^2.46.3",
+    "eslint-plugin-prettier": "^2.6.0",
+    "flow-bin": "^0.71.0",
     "flow-copy-source": "^1.3.0",
     "flow-remove-types": "^1.2.3",
-    "rxjs": "^6.0.0"
+    "nyc": "^11.7.1",
+    "prettier": "^1.12.1",
+    "rxjs": "^6.1.0"
+  },
+  "ava": {
+    "require": [
+      "flow-remove-types/register",
+      "esm"
+    ]
   }
 }

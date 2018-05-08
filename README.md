@@ -1,7 +1,7 @@
 # rx-socket
 
 [RxJS Subject](http://reactivex.io/rxjs/class/es6/Subject.js~Subject.html) for
-[Node Socket](https://nodejs.org/dist/latest-v10.x/docs/api/net.html#net_class_net_socket).
+[Node Socket](https://nodejs.org/api/net.html#net_class_net_socket).
 
 ## Installation
 
@@ -26,7 +26,7 @@ socket.next({ hello: 'world' })
 ```
 
 See the
-[`socket.connect()` documentation](https://nodejs.org/dist/latest-v9.x/docs/api/net.html#net_socket_connect)
+[`socket.connect()` documentation](https://nodejs.org/api/net.html#net_socket_connect)
 for the supported `SocketSubject` constructor argument.
 
 ## License

@@ -15,7 +15,7 @@ import { AnonymousSubject } from 'rxjs/internal/Subject'
 type OpenObserver = Observer<void>
 type CloseObserver = Observer<boolean>
 
-type ConnectArg = number | string | net$connectOptions
+type ConnectArg = string | net$connectOptions
 
 export type Config<T> = {
   connect: ConnectArg,
@@ -35,16 +35,11 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
   _output: Subject<T>
   _socket: ?Socket
 
-  constructor(
-    connectOrConfig: ConnectArg | Config<T>,
-    destination?: Observer<T>,
-  ) {
+  constructor(connectOrConfig: ConnectArg | Config<T>) {
     super()
 
     const config =
-      typeof connectOrConfig === 'number' ||
-      typeof connectOrConfig === 'string' ||
-      connectOrConfig.connect == null
+      typeof connectOrConfig === 'string' || connectOrConfig.connect == null
         ? { connect: connectOrConfig }
         : connectOrConfig
 
@@ -72,10 +67,7 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
     const socket = createConnection(connect)
     this._socket = socket
 
-    const subscription = new Subscription(() => {
-      socket.end()
-      this._socket = null
-    })
+    const subscription = new Subscription()
 
     socket.on('connect', () => {
       openObserver && openObserver.next()
