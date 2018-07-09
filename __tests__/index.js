@@ -1,7 +1,6 @@
-import test from 'ava'
-import { unlinkSync } from 'fs'
 import { createServer } from 'net'
 import { join } from 'path'
+import test from 'ava'
 
 import { SocketSubject } from '../src'
 

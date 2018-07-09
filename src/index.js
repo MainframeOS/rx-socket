@@ -3,7 +3,6 @@
 import { createConnection, type Socket } from 'net'
 import { EOL } from 'os'
 import {
-  Observable,
   type Observer,
   ReplaySubject,
   Subject,
