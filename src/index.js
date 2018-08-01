@@ -22,17 +22,22 @@ export type Config<T> = {
   serializer: (value: any) => string,
   openObserver?: ?OpenObserver,
   closeObserver?: ?CloseObserver,
+  frameSize: number,
+  maxBufferFrames: number,
 }
 
 const DEFAULT_CONFIG = {
   deserializer: (value: string) => JSON.parse(value),
   serializer: (value: any) => JSON.stringify(value),
+  frameSize: 8192,
+  maxBufferFrames: 10,
 }
 
 export class SocketSubject<T> extends AnonymousSubject<T> {
   _config: Config<T>
   _output: Subject<T>
   _socket: ?Socket
+  _buffer: string = ''
 
   constructor(connectOrConfig: ConnectArg | Config<T>) {
     super()
@@ -60,8 +65,12 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
       serializer,
       openObserver,
       closeObserver,
+      frameSize,
+      maxBufferFrames,
     } = this._config
     const observer = this._output
+
+    const maxBufferSize = frameSize * maxBufferFrames
 
     const socket = createConnection(connect)
     this._socket = socket
@@ -102,20 +111,77 @@ export class SocketSubject<T> extends AnonymousSubject<T> {
       }
     })
 
-    const tryPush = value => {
+    const tryPush = (value: T): void => {
       try {
-        observer.next(deserializer(value))
+        observer.next(value)
       } catch (err) {
         observer.error(err)
       }
     }
 
-    socket.on('data', data => {
-      data
-        .toString()
+    const tryParse = (value: string): ?T => {
+      try {
+        return deserializer(value)
+      } catch (err) {
+        // Swallow error
+      }
+    }
+
+    const tryParseAll = (value: string): Array<T> => {
+      return value
         .split(EOL)
+        .map(tryParse)
         .filter(Boolean)
-        .forEach(tryPush)
+    }
+
+    socket.on('data', data => {
+      const str = data.toString()
+      let parsed = []
+
+      if (str.length === frameSize) {
+        // Frame is full: could be incomplete message
+        if (this._buffer.length > 0) {
+          // A previous frame is already buffered, try to parse them combined
+          parsed = tryParseAll(this._buffer + str)
+          if (parsed.length === 0) {
+            // No message parsed with combined frames, try with only the new frame
+            parsed = tryParseAll(str)
+            if (parsed.length === 0) {
+              // Failed to parse a message from new frame
+              if (this._buffer.length === maxBufferSize) {
+                // Buffer is full, emit error
+                observer.error(new Error('Buffer overflow'))
+              } else {
+                // Append frame to existing buffer
+                this._buffer += str
+              }
+            }
+          }
+        } else {
+          // No previous frame in buffer, try to parse new one
+          parsed = tryParseAll(str)
+          if (parsed.length === 0) {
+            // Failed to parse a message from new frame, buffer it
+            this._buffer = str
+          }
+        }
+      } else if (this._buffer.length > 0) {
+        // A previous frame is already buffered, try to parse them combined
+        parsed = tryParseAll(this._buffer + str)
+        if (parsed.length === 0) {
+          // No message parsed with combined frames, try with only the new frame
+          parsed = tryParseAll(str)
+        }
+      } else {
+        // Basic case: frame is not full and buffer is empty
+        parsed = tryParseAll(str)
+      }
+
+      if (parsed.length !== 0) {
+        // At least one message was parsed, clear buffer and push messages
+        this._buffer = ''
+        parsed.forEach(tryPush)
+      }
     })
   }
 

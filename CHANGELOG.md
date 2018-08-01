@@ -1,3 +1,7 @@
+## v0.3.2 (2018-08-01)
+
+Fix multi-frames message handling with customizable buffer size.
+
 ## v0.3.1 (2018-07-09)
 
 Changed exports to CommonJS, removed esm dependency.
