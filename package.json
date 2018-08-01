@@ -20,9 +20,8 @@
     "test:unit": "ava",
     "test:cover": "nyc ava",
     "test:coverage": "nyc report --reporter=lcov",
-    "test:report": "mkdir -p /tmp/reports/ava && ava --tap | tap-xunit > /tmp/reports/ava/results.xml",
     "test": "yarn lint && yarn test:types && yarn test:cover",
-    "test:ci": "yarn lint && yarn test:types && yarn test:report",
+    "test:ci": "yarn lint && yarn test:types && yarn test:unit",
     "start": "yarn test && yarn build && yarn test:cover",
     "prepublishOnly": "yarn build"
   },
