@@ -21,6 +21,7 @@ jobs:
       - run: yarn test:ci
       - run:
           command: |
+            yarn add ava tap-xunit
             mkdir -p ~/reports
             ava --tap | tap-xunit > /reports/ava.xml
           when: always
