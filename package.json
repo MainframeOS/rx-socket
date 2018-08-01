@@ -21,6 +21,7 @@
     "test:cover": "nyc ava",
     "test:coverage": "nyc report --reporter=lcov",
     "test": "yarn lint && yarn test:types && yarn test:cover",
+    "test:ci": "yarn lint && yarn test:types",
     "start": "yarn test && yarn build && yarn test:cover",
     "prepublishOnly": "yarn build"
   },
@@ -44,7 +45,8 @@
     "flow-copy-source": "^2.0.2",
     "nyc": "^12.0.2",
     "prettier": "^1.14.0",
-    "rxjs": "^6.2.2"
+    "rxjs": "^6.2.2",
+    "tap-xunit": "^2.3.0"
   },
   "ava": {
     "require": [
