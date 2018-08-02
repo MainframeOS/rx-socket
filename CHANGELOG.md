@@ -1,3 +1,9 @@
+## v0.4.0 (2018-08-02)
+
+- Add `oboe` dependency to handle frames parsing.
+- Remove support for custom `serializer` and `deserializer` options. Only JSON objects are supported.
+- Remove buffering options, delegated to `oboe` logic.
+
 ## v0.3.2 (2018-08-01)
 
 Fix multi-frames message handling with customizable buffer size.

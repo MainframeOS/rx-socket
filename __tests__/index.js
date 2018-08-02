@@ -59,7 +59,7 @@ test('accepts a config object with open and close observers', t => {
   t.plan(2)
   return new Promise(async resolve => {
     const server = await createSocketServer(s => {
-      s.write('"test"')
+      s.write(JSON.stringify({ ok: true }))
     })
     const socket = new SocketSubject({
       connect: server.path,
@@ -89,14 +89,14 @@ test('handles multi-frame messages (2-parts test)', async t => {
   t.plan(1)
   const fullMessage = multiFrameMessage.slice(0, 10000)
   const server = await createSocketServer(s => {
-    s.write(`"${fullMessage}"`)
+    s.write(JSON.stringify({ text: fullMessage }))
   })
   const socket = new SocketSubject(server.path)
   return new Promise(resolve => {
     socket.subscribe(msg => {
       socket.unsubscribe()
       server.close()
-      t.is(msg, fullMessage)
+      t.is(msg.text, fullMessage)
       resolve()
     })
   })
@@ -105,33 +105,15 @@ test('handles multi-frame messages (2-parts test)', async t => {
 test('handles multi-frame messages (4-parts test)', async t => {
   t.plan(1)
   const server = await createSocketServer(s => {
-    s.write(`"${multiFrameMessage}"`)
+    s.write(JSON.stringify({ text: multiFrameMessage }))
   })
   const socket = new SocketSubject(server.path)
   return new Promise(resolve => {
     socket.subscribe(msg => {
       socket.unsubscribe()
       server.close()
-      t.is(msg, multiFrameMessage)
+      t.is(msg.text, multiFrameMessage)
       resolve()
-    })
-  })
-})
-
-test('handles buffer overflows', async t => {
-  t.plan(1)
-  const server = await createSocketServer(s => {
-    s.write(`"${multiFrameMessage}"`)
-  })
-  const socket = new SocketSubject({ connect: server.path, maxBufferFrames: 2 })
-  return new Promise(resolve => {
-    socket.subscribe({
-      error: err => {
-        socket.unsubscribe()
-        server.close()
-        t.is(err.message, 'Buffer overflow')
-        resolve()
-      },
     })
   })
 })
@@ -139,19 +121,19 @@ test('handles buffer overflows', async t => {
 test('handles multiple messages per frame', async t => {
   t.plan(2)
   const server = await createSocketServer(s => {
-    s.write(`"hello"${EOL}`)
-    s.write(`"world"${EOL}`)
+    s.write(`{"text":"hello"}${EOL}`)
+    s.write(`{"text":"world"}${EOL}`)
   })
   const socket = new SocketSubject(server.path)
   return new Promise(resolve => {
     let count = 0
     socket.subscribe(msg => {
       if (count++ === 0) {
-        t.is(msg, 'hello')
+        t.is(msg.text, 'hello')
       } else {
         socket.unsubscribe()
         server.close()
-        t.is(msg, 'world')
+        t.is(msg.text, 'world')
         resolve()
       }
     })

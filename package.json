@@ -1,6 +1,6 @@
 {
   "name": "rx-socket",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Rx Subject for Node sockets",
   "repository": "git@github.com:MainframeHQ/rx-socket.git",
   "author": "Mainframe",
@@ -25,6 +25,9 @@
     "test:ci": "yarn lint && yarn test:types && yarn test:report",
     "start": "yarn test && yarn build && yarn test:cover",
     "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "oboe": "^2.1.4"
   },
   "peerDependencies": {
     "rxjs": "^6.0.0"
