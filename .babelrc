@@ -1,14 +1,13 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "targets": {
           "node": 8
         }
       }
     ],
-    "flow"
-  ],
-  "plugins": ["syntax-class-properties", "transform-class-properties"]
+    "@babel/preset-flow"
+  ]
 }

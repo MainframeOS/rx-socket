@@ -1,5 +1,5 @@
-// flow-typed signature: ad3b531fb73f6b4f59d7b232d1c7627a
-// flow-typed version: 1efe8b19df/rxjs_v6.x.x/flow_>=v0.34.x
+// flow-typed signature: 304495199262702cbd213a48933305e4
+// flow-typed version: 4f634d5e06/rxjs_v6.x.x/flow_>=v0.34.x
 
 type rxjs$PartialObserver<-T> =
   | {
@@ -1630,6 +1630,7 @@ declare class rxjs$UnsubscriptionError extends Error {}
 
 declare module "rxjs" {
   declare module.exports: {
+    concat<+T>(...sources: rxjs$Observable<T>[]): rxjs$Observable<T>,
     from<+T>(
       input: rxjs$ObservableInput<T>,
       scheduler?: rxjs$SchedulerClass
