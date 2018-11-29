@@ -2,17 +2,11 @@
 
 import { createConnection, type Socket } from 'net'
 import oboe from 'oboe'
-import {
-  type Observer,
-  ReplaySubject,
-  Subject,
-  Subscriber,
-  Subscription,
-} from 'rxjs'
+import { ReplaySubject, Subject, Subscriber, Subscription } from 'rxjs'
 import { AnonymousSubject } from 'rxjs/internal/Subject'
 
-type OpenObserver = Observer<void>
-type CloseObserver = Observer<boolean>
+type OpenObserver = rxjs$NextObserver<void>
+type CloseObserver = rxjs$NextObserver<boolean>
 
 export type ConnectArg = string | net$connectOptions
 

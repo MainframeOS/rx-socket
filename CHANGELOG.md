@@ -1,3 +1,7 @@
+## v0.4.1 (2018-10-26)
+
+Fix `Observer` Flow type.
+
 ## v0.4.0 (2018-08-02)
 
 - Add `oboe` dependency to handle frames parsing.
