@@ -9,21 +9,17 @@
     "lib/*"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "clean": "del lib",
-    "build:js": "babel src --out-dir lib",
-    "build:flow": "flow-copy-source src lib",
-    "build": "yarn clean && yarn build:js && yarn build:flow",
-    "lint": "eslint src __tests__",
-    "lint:fix": "yarn lint --fix",
-    "test:types": "flow check",
-    "test:unit": "ava",
-    "test:cover": "nyc ava",
-    "test:coverage": "nyc report --reporter=lcov",
-    "test:report": "mkdir -p /tmp/reports/ava && ava --tap | tap-xunit > /tmp/reports/ava/results.xml",
-    "test": "yarn lint && yarn test:types && yarn test:cover",
-    "test:ci": "yarn lint && yarn test:types && yarn test:report",
-    "start": "yarn test && yarn build && yarn test:cover",
+    "build": "del lib && yarn build:types && yarn build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts\"",
+    "lint": "eslint src/*",
+    "test:types": "tsc --noEmit",
+    "test:unit": "jest",
+    "test": "yarn lint && yarn test:types && yarn test:unit",
+    "test:ci": "yarn test",
+    "start": "yarn test && yarn build",
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
@@ -33,26 +29,22 @@
     "rxjs": "^6.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.1.5",
-    "@babel/core": "7.1.6",
-    "@babel/preset-env": "7.1.6",
-    "@babel/preset-flow": "7.0.0",
-    "@babel/register": "7.0.0",
-    "ava": "^0.25.0",
-    "babel-eslint": "^10.0.1",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-typescript": "^7.1.0",
+    "@types/node": "^10.12.24",
+    "@types/oboe": "^2.0.28",
+    "@typescript-eslint/eslint-plugin": "^1.3.0",
+    "@typescript-eslint/parser": "^1.3.0",
     "del-cli": "^1.1.0",
-    "eslint": "^5.9.0",
-    "eslint-config-mainframe": "^2.2.0",
-    "flow-bin": "^0.87.0",
-    "flow-copy-source": "^2.0.2",
-    "nyc": "^13.1.0",
-    "prettier": "^1.15.2",
-    "rxjs": "^6.3.3",
-    "tap-xunit": "^2.3.0"
-  },
-  "ava": {
-    "require": [
-      "@babel/register"
-    ]
+    "eslint": "^5.13.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "jest": "^24.1.0",
+    "prettier": "^1.16.4",
+    "rxjs": "^6.4.0",
+    "tap-xunit": "^2.3.0",
+    "typescript": "^3.3.3"
   }
 }

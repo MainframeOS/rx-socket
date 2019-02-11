@@ -1,3 +1,9 @@
 module.exports = {
-  extends: ['mainframe', 'mainframe/ava'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'prettier/@typescript-eslint',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
 }
