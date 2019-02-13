@@ -1,9 +1,9 @@
 import { createServer } from 'net'
-import { EOL } from 'os'
+import { EOL, tmpdir } from 'os'
 import { join } from 'path'
 import test from 'ava'
 
-import { SocketSubject } from '../src'
+import { SocketSubject } from '..'
 
 const randomString = () => {
   return Math.random()
@@ -12,11 +12,12 @@ const randomString = () => {
 }
 
 const createSocketServer = listener => {
-  const path = join(process.cwd(), randomString())
+  const path = join(tmpdir(), randomString())
+  const server = createServer(listener)
   const close = cb => {
     server.close(cb)
   }
-  const server = createServer(listener)
+
   return new Promise((resolve, reject) => {
     server.listen(path, err => {
       if (err) reject(err)
@@ -46,6 +47,7 @@ test('sends JSON objects', t => {
     const server = await createSocketServer(s => {
       s.on('data', chunk => {
         t.is(chunk.toString(), '{"ok":true}')
+        server.close()
         resolve()
       })
     })
@@ -62,7 +64,7 @@ test('accepts a config object with open and close observers', t => {
       s.write(JSON.stringify({ ok: true }))
     })
     const socket = new SocketSubject({
-      connect: server.path,
+      path: server.path,
       openObserver: {
         next: () => {
           t.pass()

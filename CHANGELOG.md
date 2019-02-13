@@ -1,3 +1,9 @@
+## v0.5.0 (2019-02-13)
+
+- Changed `connect` config option to `path`.
+- Replaced Flow by TypeScript.
+- Added TypeScript definitions.
+
 ## v0.4.1 (2018-10-26)
 
 Fix `Observer` Flow type.

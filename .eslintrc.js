@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ['mainframe', 'mainframe/ava'],
+  extends: ['mainframe', 'mainframe/ava', 'mainframe/typescript'],
 }

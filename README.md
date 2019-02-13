@@ -1,6 +1,6 @@
 # rx-socket
 
-[RxJS Subject](http://reactivex.io/rxjs/class/es6/Subject.js~Subject.html) for
+[RxJS Subject](https://rxjs.dev/guide/subject) for
 [Node Socket](https://nodejs.org/api/net.html#net_class_net_socket).
 
 ## Installation

@@ -1,6 +1,6 @@
 {
   "name": "rx-socket",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Rx Subject for Node sockets",
   "repository": "git@github.com:MainframeHQ/rx-socket.git",
   "author": "Mainframe",
@@ -9,21 +9,22 @@
     "lib/*"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "clean": "del lib",
-    "build:js": "babel src --out-dir lib",
-    "build:flow": "flow-copy-source src lib",
-    "build": "yarn clean && yarn build:js && yarn build:flow",
-    "lint": "eslint src __tests__",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts\"",
+    "build": "yarn clean && yarn build:types && yarn build:js",
+    "lint": "eslint src/** __tests__/** --ext ts",
     "lint:fix": "yarn lint --fix",
-    "test:types": "flow check",
+    "test:types": "tsc --noEmit",
     "test:unit": "ava",
     "test:cover": "nyc ava",
     "test:coverage": "nyc report --reporter=lcov",
     "test:report": "mkdir -p /tmp/reports/ava && ava --tap | tap-xunit > /tmp/reports/ava/results.xml",
     "test": "yarn lint && yarn test:types && yarn test:cover",
     "test:ci": "yarn lint && yarn test:types && yarn test:report",
-    "start": "yarn test && yarn build && yarn test:cover",
+    "start": "yarn build && yarn test",
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
@@ -33,26 +34,21 @@
     "rxjs": "^6.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.1.5",
-    "@babel/core": "7.1.6",
-    "@babel/preset-env": "7.1.6",
-    "@babel/preset-flow": "7.0.0",
+    "@babel/cli": "7.2.3",
+    "@babel/core": "7.2.2",
+    "@babel/preset-env": "7.3.1",
+    "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "7.0.0",
-    "ava": "^0.25.0",
+    "@types/oboe": "^2.0.28",
+    "ava": "^1.2.1",
     "babel-eslint": "^10.0.1",
     "del-cli": "^1.1.0",
-    "eslint": "^5.9.0",
-    "eslint-config-mainframe": "^2.2.0",
-    "flow-bin": "^0.87.0",
-    "flow-copy-source": "^2.0.2",
-    "nyc": "^13.1.0",
-    "prettier": "^1.15.2",
-    "rxjs": "^6.3.3",
-    "tap-xunit": "^2.3.0"
-  },
-  "ava": {
-    "require": [
-      "@babel/register"
-    ]
+    "eslint": "^5.13.0",
+    "eslint-config-mainframe": "^3.0.0",
+    "nyc": "^13.2.0",
+    "prettier": "^1.16.4",
+    "rxjs": "^6.4.0",
+    "tap-xunit": "^2.3.0",
+    "typescript": "^3.3.3"
   }
 }
